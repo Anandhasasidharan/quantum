@@ -1,0 +1,144 @@
+[gd_scene load_steps=9 format=3 uid="uid://dpw5k3h8m2nqx"]
+
+[ext_resource type="Script" path="res://scripts/DroneController.gd" id="1_drone"]
+[ext_resource type="Script" path="res://scripts/MissionLoader.gd" id="2_mission"]
+[ext_resource type="Script" path="res://scripts/HUD.gd" id="3_hud"]
+[ext_resource type="Script" path="res://scripts/QuantumUpdater.gd" id="4_quantum"]
+[ext_resource type="Environment" path="res://default_env.tres" id="5_env"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_drone"]
+radius = 0.5
+height = 2.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_qubit"]
+radius = 0.5
+height = 1.0
+radial_segments = 32
+rings = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qubit"]
+albedo_color = Color(0.2, 0.8, 1, 1)
+metallic = 0.5
+roughness = 0.3
+emission_enabled = true
+emission = Color(0.2, 0.8, 1, 1)
+emission_energy_multiplier = 2.0
+
+[node name="DroneMission" type="Node3D"]
+script = ExtResource("2_mission")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("5_env")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 10, 0)
+light_energy = 0.5
+shadow_enabled = true
+
+[node name="Drone" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_drone")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Drone"]
+shape = SubResource("CapsuleShape3D_drone")
+
+[node name="Camera3D" type="Camera3D" parent="Drone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+fov = 90.0
+
+[node name="QuantumSpace" type="Node3D" parent="."]
+script = ExtResource("4_quantum")
+
+[node name="Qubit0" type="MeshInstance3D" parent="QuantumSpace"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
+mesh = SubResource("SphereMesh_qubit")
+surface_material_override/0 = SubResource("StandardMaterial3D_qubit")
+
+[node name="Qubit1" type="MeshInstance3D" parent="QuantumSpace"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, 4.33)
+mesh = SubResource("SphereMesh_qubit")
+surface_material_override/0 = SubResource("StandardMaterial3D_qubit")
+
+[node name="Qubit2" type="MeshInstance3D" parent="QuantumSpace"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, -4.33)
+mesh = SubResource("SphereMesh_qubit")
+surface_material_override/0 = SubResource("StandardMaterial3D_qubit")
+
+[node name="EntanglementCables" type="Node3D" parent="QuantumSpace"]
+
+[node name="ProbabilityClouds" type="Node3D" parent="QuantumSpace"]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_hud")
+
+[node name="Container" type="MarginContainer" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="TopLeft" type="VBoxContainer" parent="HUD/Container"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_constants/separation = 10
+
+[node name="MissionName" type="Label" parent="HUD/Container/TopLeft"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0.8, 1)
+theme_override_font_sizes/font_size = 32
+text = "BB84 Protocol"
+
+[node name="StepLabel" type="Label" parent="HUD/Container/TopLeft"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Step: 1"
+
+[node name="ErrorRate" type="Label" parent="HUD/Container/TopLeft"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Error Rate: 0.0%"
+
+[node name="KeyBits" type="Label" parent="HUD/Container/TopLeft"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Sifted Key: []"
+
+[node name="EveStatus" type="Label" parent="HUD/Container/TopLeft"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Eve: Inactive"
+
+[node name="TopRight" type="VBoxContainer" parent="HUD/Container"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+theme_override_constants/separation = 5
+
+[node name="BackendStatus" type="Label" parent="HUD/Container/TopRight"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Backend: Connecting..."
+horizontal_alignment = 2
+
+[node name="BottomCenter" type="VBoxContainer" parent="HUD/Container"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+theme_override_constants/separation = 10
+
+[node name="Controls" type="Label" parent="HUD/Container/BottomCenter"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 18
+text = "WASD: Move | Mouse: Look | SPACE: Measure | E: Toggle Eve | ESC: Exit"
+horizontal_alignment = 1
+
+[node name="PollingTimer" type="Timer" parent="."]
+wait_time = 0.2
+autostart = false

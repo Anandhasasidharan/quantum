@@ -1,0 +1,14 @@
+[gd_resource type="Environment" format=3 uid="uid://ikfrsu628dk0"]
+
+[resource]
+background_mode = 1
+background_color = Color(0.02, 0.02, 0.08, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.2, 0.3, 0.5, 1)
+ambient_light_energy = 0.5
+reflected_light_source = 1
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 1.5
+glow_strength = 0.8
+glow_bloom = 0.3

@@ -1,0 +1,159 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmh5r3v8k2pqy"]
+
+[ext_resource type="Script" path="res://scripts/ProtocolsHangar.gd" id="1_hangar"]
+
+[node name="ProtocolsHangar" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hangar")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.08, 0.12, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 100.0
+offset_top = 50.0
+offset_right = -100.0
+offset_bottom = -50.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 30
+
+[node name="Header" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="BackButton" type="Button" parent="VBoxContainer/Header"]
+custom_minimum_size = Vector2(150, 50)
+layout_mode = 2
+text = "← Back"
+
+[node name="Title" type="Label" parent="VBoxContainer/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 48
+text = "🛡️ PROTOCOLS HANGAR"
+vertical_alignment = 1
+
+[node name="MissionGrid" type="GridContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 40
+theme_override_constants/v_separation = 40
+columns = 3
+
+[node name="BB84Card" type="PanelContainer" parent="VBoxContainer/MissionGrid"]
+custom_minimum_size = Vector2(400, 300)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="VBoxContainer/MissionGrid/BB84Card"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="MissionName" type="Label" parent="VBoxContainer/MissionGrid/BB84Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 32
+text = "BB84 Protocol"
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="VBoxContainer/MissionGrid/BB84Card/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Quantum key distribution with
+eavesdropping detection.
+
+Qubits: 3
+Year: 1984"
+autowrap_mode = 3
+
+[node name="LaunchButton" type="Button" parent="VBoxContainer/MissionGrid/BB84Card/VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 24
+text = "LAUNCH MISSION"
+
+[node name="E91Card" type="PanelContainer" parent="VBoxContainer/MissionGrid"]
+custom_minimum_size = Vector2(400, 300)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="VBoxContainer/MissionGrid/E91Card"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="MissionName" type="Label" parent="VBoxContainer/MissionGrid/E91Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.2, 1, 1)
+theme_override_font_sizes/font_size = 32
+text = "E91 Protocol"
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="VBoxContainer/MissionGrid/E91Card/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Entanglement-based QKD with
+Bell pairs and CHSH inequality.
+
+Qubits: 2
+Year: 1991"
+autowrap_mode = 3
+
+[node name="LaunchButton" type="Button" parent="VBoxContainer/MissionGrid/E91Card/VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.2, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "LAUNCH MISSION"
+
+[node name="B92Card" type="PanelContainer" parent="VBoxContainer/MissionGrid"]
+custom_minimum_size = Vector2(400, 300)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="VBoxContainer/MissionGrid/B92Card"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="MissionName" type="Label" parent="VBoxContainer/MissionGrid/B92Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "B92 Protocol"
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="VBoxContainer/MissionGrid/B92Card/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Simple 2-state QKD.
+Non-orthogonal quantum states.
+
+Qubits: 1
+Year: 1992"
+autowrap_mode = 3
+
+[node name="LaunchButton" type="Button" parent="VBoxContainer/MissionGrid/B92Card/VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 24
+text = "LAUNCH MISSION"
+
+[connection signal="pressed" from="VBoxContainer/Header/BackButton" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="VBoxContainer/MissionGrid/BB84Card/VBox/LaunchButton" to="." method="_on_bb84_launch"]
+[connection signal="pressed" from="VBoxContainer/MissionGrid/E91Card/VBox/LaunchButton" to="." method="_on_e91_launch"]
+[connection signal="pressed" from="VBoxContainer/MissionGrid/B92Card/VBox/LaunchButton" to="." method="_on_b92_launch"]
