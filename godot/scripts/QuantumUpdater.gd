@@ -1896,4 +1896,3 @@ func position_qubits_circular(radius: float = 5.0):
 func _exit_tree():
 	if animation_tween:
 		animation_tween.kill()
-

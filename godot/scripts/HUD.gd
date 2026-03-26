@@ -456,4 +456,3 @@ func get_current_status() -> Dictionary:
 		"eve_status": eve_status_label.text,
 		"backend_status": backend_status_label.text
 	}
-
