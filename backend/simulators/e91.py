@@ -29,7 +29,7 @@ class E91Simulator(QuantumMissionSimulator):
 
         # Create Bell pair (|00⟩ + |11⟩)/√2
         self.engine.circuit.h(0)  # Put qubit 0 in superposition
-        self.engine.circuit.cnot(0, 1)  # Entangle with qubit 1
+        self.engine.circuit.cx(0, 1)  # Entangle with qubit 1
 
         # Initialize angle choices for CHSH test
         self.alice_angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]  # Alice's measurement angles
@@ -101,7 +101,7 @@ class E91Simulator(QuantumMissionSimulator):
         # Reset Bell pair for next round
         self.engine.reset(self.num_qubits)
         self.engine.circuit.h(0)
-        self.engine.circuit.cnot(0, 1)
+        self.engine.circuit.cx(0, 1)
 
         self.mission_state = {
             'step': self.step_count,
@@ -137,8 +137,8 @@ class E91Simulator(QuantumMissionSimulator):
             outcome = int(bitstring[-(qubit_id + 1)])
 
             results.append({
-                'qubit_id': qubit_id,
-                'outcome': outcome,
+                'qubit': qubit_id,
+                'result': outcome,
                 'basis': 'computational',
                 'entangled': True
             })
@@ -146,21 +146,20 @@ class E91Simulator(QuantumMissionSimulator):
         return results
 
     def get_visualization_data(self) -> Dict[str, Any]:
-        """Get data for E91 twin drones + CHSH violation visualization."""
+        """Get data for E91 visualization in the shared mission payload format."""
         return {
-            'mission_type': 'e91',
-            'bell_pairs': [
-                {'qubit_a': 0, 'qubit_b': 1, 'entangled': True}
-            ],
-            'chsh_meter': {
-                'value': self.chsh_value,
-                'violation': self.chsh_value > 2.0,
-                'max_classical': 2.0,
-                'max_quantum': 2.83
-            },
-            'twin_drones': {
-                'alice_position': [0, 0, 0],
-                'bob_position': [10, 0, 0],
-                'entanglement_beam': True
-            }
+            'qubits': self.engine.get_qubit_states(),
+            'step': self.step_count,
+            'mission_data': self.mission_state
+        }
+
+    def get_mission_info(self) -> Dict[str, Any]:
+        """Get E91 mission information."""
+        return {
+            "name": "E91 Entanglement-Based QKD",
+            "description": "Quantum key distribution using Bell pairs and CHSH inequality",
+            "objective": "Generate secure key using entangled photon pairs",
+            "qubits": self.num_qubits,
+            "bell_pairs": 1,
+            "security": "CHSH violation detection"
         }

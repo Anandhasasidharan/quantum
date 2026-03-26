@@ -5,10 +5,12 @@ extends Node3D
 @onready var quantum_updater = $QuantumSpace
 
 var http_request: HTTPRequest
+var measure_request: HTTPRequest
 var current_mission: String = ""
 var simulation_active: bool = false
 var eve_active: bool = false
 var backend_connected: bool = false
+var request_in_flight: bool = false
 
 func _ready():
 	current_mission = GameState.get_mission()
@@ -33,6 +35,11 @@ func setup_http_client():
 	http_request.timeout = 5.0
 	http_request.request_completed.connect(_on_request_completed)
 
+	measure_request = HTTPRequest.new()
+	add_child(measure_request)
+	measure_request.timeout = 5.0
+	measure_request.request_completed.connect(_on_measure_request_completed)
+
 func start_mission():
 	print("Starting %s mission with backend..." % current_mission)
 	# Eve toggle configuration per mission
@@ -51,6 +58,9 @@ func measure_qubit(qubit_id: int = 0):
 	if not simulation_active:
 		print("Cannot measure - simulation not active")
 		return
+	if measure_request == null:
+		print("Cannot measure - request client not ready")
+		return
 
 	print("Measuring qubit %d..." % qubit_id)
 	var url = GameState.backend_url + "/measure"
@@ -61,12 +71,16 @@ func measure_qubit(qubit_id: int = 0):
 		"basis": "rectilinear"
 	})
 
-	var error = http_request.request(url, headers, HTTPClient.METHOD_POST, body)
+	var error = measure_request.request(url, headers, HTTPClient.METHOD_POST, body)
 	if error != OK:
 		print("Failed to send measurement request")
 
 func send_request(action: String, parameters: Dictionary):
 	"""Unified request sender for all backend communication."""
+	if request_in_flight:
+		# Skip this poll tick rather than colliding requests.
+		return
+
 	var url = GameState.backend_url + "/simulate"
 	var headers = ["Content-Type: application/json"]
 	var body = JSON.stringify({
@@ -75,14 +89,21 @@ func send_request(action: String, parameters: Dictionary):
 		"parameters": parameters
 	})
 
+	request_in_flight = true
 	var error = http_request.request(url, headers, HTTPClient.METHOD_POST, body)
 	if error != OK:
+		request_in_flight = false
 		print("Failed to send %s request" % action)
 		handle_backend_offline()
 
-func _on_request_completed(result, response_code, headers, body):
+func _on_request_completed(_result, response_code, _headers, body):
+	request_in_flight = false
+
 	if response_code != 200:
 		print("HTTP Error: %d" % response_code)
+		if not simulation_active and current_mission != "bb84":
+			_switch_to_bb84_fallback("Mission unavailable - switching to stable BB84")
+			return
 		handle_backend_offline()
 		return
 
@@ -108,6 +129,21 @@ func _on_request_completed(result, response_code, headers, body):
 		polling_timer.start()
 
 	# Update visualization with quantum data
+	update_visualization(data)
+
+func _on_measure_request_completed(_result, response_code, _headers, body):
+	if response_code != 200:
+		print("Measurement HTTP Error: %d" % response_code)
+		if response_code == 0:
+			handle_backend_offline()
+		return
+
+	var json = JSON.new()
+	if json.parse(body.get_string_from_utf8()) != OK:
+		print("Measurement JSON parse error")
+		return
+
+	var data = json.get_data()
 	update_visualization(data)
 
 func update_visualization(data):
@@ -180,13 +216,13 @@ func generate_step_explanation(step: int, mission_data: Dictionary):
 
 func get_bb84_explanation(step: int, data: Dictionary) -> String:
 	"""Get clean BB84 protocol step explanations."""
-	var eve_active = data.get("eve_active", false)
+	var eve_enabled = data.get("eve_active", false)
 
 	match step % 4:
 		1:
 			return "STEP 1: Alice Prepares Qubits"
 		2:
-			if eve_active:
+			if eve_enabled:
 				return "STEP 2: Eve Intercepts - Errors Introduced!"
 			else:
 				return "STEP 2: Qubits Travel Through Channel"
@@ -308,8 +344,8 @@ func handle_protocol_visualization(data: Dictionary):
 				quantum_updater.animate_bell_pair_creation()
 
 		# Show Eve cutting beam if active
-		var eve_active = data.get("eve_active", false)
-		if eve_active and Time.get_ticks_msec() % 5000 < 100:
+		var eve_enabled = data.get("eve_active", false)
+		if eve_enabled and Time.get_ticks_msec() % 5000 < 100:
 			if quantum_updater and quantum_updater.has_method("show_eve_cutting_beam"):
 				quantum_updater.show_eve_cutting_beam()
 
@@ -371,12 +407,26 @@ func _on_polling_timeout():
 func handle_backend_offline():
 	backend_connected = false
 	simulation_active = false
-	hud.update_backend_status("Backend offline — run ./run.sh")
+	hud.update_backend_status("Backend offline - start backend/run.sh")
+	if hud and hud.has_method("show_educational_text"):
+		hud.show_educational_text("Backend offline. Start backend and return to mission.")
 
 	if polling_timer.timeout.is_connected(_on_polling_timeout):
 		polling_timer.stop()
 
 	print("Backend offline. Run './run.sh' to start backend.")
+
+func _switch_to_bb84_fallback(message: String):
+	print(message)
+	current_mission = "bb84"
+	GameState.set_mission("bb84", "protocol")
+	hud.update_mission_name("BB84")
+	hud.setup_for_mission("bb84")
+	quantum_updater.setup_for_mission("bb84")
+	hud.update_backend_status("Fallback: BB84")
+	if hud and hud.has_method("show_educational_text"):
+		hud.show_educational_text("Fallback active: BB84 is loaded for demo stability.")
+	start_mission()
 
 func _unhandled_input(event):
 	# Eve toggle (QKD protocols only)
@@ -414,3 +464,8 @@ func get_simulation_status() -> Dictionary:
 		"connected": backend_connected,
 		"eve_active": eve_active
 	}
+
+func _exit_tree():
+	request_in_flight = false
+	if polling_timer:
+		polling_timer.stop()

@@ -2,6 +2,17 @@
 
 **Create portable builds for hackathon demonstrations and distribution**
 
+## ⚡ Quick Demo Export Paths
+
+- **Desktop (recommended live demo):** `exports/windows/quantum-drone-pilot.exe`
+- **Web (HTML5):** `exports/web/index.html`
+
+### Fast Steps
+1. Open Godot project (`godot/project.godot`) and go to **Project → Export...**
+2. Add **Windows Desktop** and **Web** presets (download templates if prompted)
+3. Set paths exactly as above and click **Export Project** for each
+4. For full functionality during judging, run desktop build with backend on `localhost:8000`
+
 ---
 
 ## 🌐 HTML5 Web Export (Recommended for Demos)

@@ -136,3 +136,9 @@ class QuantumEngine:
             return str(self.circuit.draw(output='text', fold=-1))
         except:
             return "Circuit diagram unavailable"
+
+    def get_amplitudes(self) -> List[complex]:
+        """Get raw quantum amplitudes for advanced visualization."""
+        if self.statevector is None:
+            self.get_statevector()
+        return [complex(amp) for amp in self.statevector.data]

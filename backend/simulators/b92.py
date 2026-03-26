@@ -159,8 +159,8 @@ class B92Simulator(QuantumMissionSimulator):
             outcome = int(bitstring[-(qubit_id + 1)])
 
             results.append({
-                'qubit_id': qubit_id,
-                'outcome': outcome,
+                'qubit': qubit_id,
+                'result': outcome,
                 'basis': basis,
                 'photon_detected': outcome == 0  # B92 detection criterion
             })
@@ -168,19 +168,9 @@ class B92Simulator(QuantumMissionSimulator):
         return results
 
     def get_visualization_data(self) -> Dict[str, Any]:
-        """Get data for B92 simple photon flight visualization."""
-        current_state = self.alice_states[-1] if self.alice_states else '|0⟩'
-
+        """Get data for B92 visualization in the shared mission payload format."""
         return {
-            'mission_type': 'b92',
-            'photon_stream': {
-                'current_state': current_state,
-                'polarization': 'linear' if current_state == '|0⟩' else 'diagonal',
-                'detection_rate': len(self.sifted_key) / max(self.photon_count, 1)
-            },
-            'simple_flight': {
-                'alice_to_bob': True,
-                'photon_color': 'blue' if current_state == '|0⟩' else 'orange',
-                'trajectory': 'straight_line'
-            }
+            'qubits': self.engine.get_qubit_states(),
+            'step': self.step_count,
+            'mission_data': self.mission_state
         }

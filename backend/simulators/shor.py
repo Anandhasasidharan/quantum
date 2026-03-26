@@ -195,8 +195,8 @@ class ShorSimulator(QuantumMissionSimulator):
             outcome = int(bitstring[-(qubit_id + 1)])
 
             results.append({
-                'qubit_id': qubit_id,
-                'outcome': outcome,
+                'qubit': qubit_id,
+                'result': outcome,
                 'register': 'input' if qubit_id < self.num_qubits // 2 else 'output',
                 'qft_applied': self.step_count >= 3
             })
@@ -204,26 +204,11 @@ class ShorSimulator(QuantumMissionSimulator):
         return results
 
     def get_visualization_data(self) -> Dict[str, Any]:
-        """Get data for Shor's period landscape + QFT portal visualization."""
+        """Get data for Shor visualization in the shared mission payload format."""
         return {
-            'mission_type': 'shor',
-            'period_landscape': {
-                'N': self.N,
-                'base_a': self.a,
-                'period': self.period,
-                'candidates': self.period_candidates,
-                'height_map': self.generate_period_heights()
-            },
-            'qft_portal': {
-                'active': self.step_count >= 3,
-                'frequency_peaks': self.qft_results,
-                'quantum_interference': True
-            },
-            'factor_peaks': {
-                'factors': self.factors,
-                'success': len(self.factors) > 0,
-                'verification': self.verify_factorization()
-            }
+            'qubits': self.engine.get_qubit_states(),
+            'step': self.step_count,
+            'mission_data': self.mission_state
         }
 
     def generate_period_heights(self) -> List[float]:

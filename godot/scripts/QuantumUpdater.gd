@@ -243,7 +243,7 @@ func create_alice_bob_eve_enhanced():
 	alice_material.albedo_color = Color.YELLOW
 	alice_material.emission_enabled = true
 	alice_material.emission = Color.YELLOW
-	alice_material.emission_energy = 2.0
+	alice_material.emission_energy_multiplier = 2.0
 	alice_material.rim_enabled = true
 	alice_material.rim = 1.0
 	alice_avatar.set_surface_override_material(0, alice_material)
@@ -274,7 +274,7 @@ func create_alice_bob_eve_enhanced():
 	bob_material.albedo_color = Color.GREEN
 	bob_material.emission_enabled = true
 	bob_material.emission = Color.GREEN
-	bob_material.emission_energy = 2.0
+	bob_material.emission_energy_multiplier = 2.0
 	bob_material.rim_enabled = true
 	bob_material.rim = 1.0
 	bob_avatar.set_surface_override_material(0, bob_material)
@@ -316,7 +316,7 @@ func create_alice_bob_eve_enhanced():
 	eve_material.albedo_color = Color.RED
 	eve_material.emission_enabled = true
 	eve_material.emission = Color.RED
-	eve_material.emission_energy = 2.5
+	eve_material.emission_energy_multiplier = 2.5
 	eve_material.rim_enabled = true
 	eve_material.rim = 1.2
 	eve_drone.set_surface_override_material(0, eve_material)
@@ -354,7 +354,7 @@ func create_quantum_channel_enhanced():
 	material.albedo_color = Color(0.4, 1.0, 1.0, 0.7)
 	material.emission_enabled = true
 	material.emission = Color.CYAN
-	material.emission_energy = 2.0
+	material.emission_energy_multiplier = 2.0
 	material.flags_transparent = true
 	material.rim_enabled = true
 	material.rim = 1.2
@@ -372,24 +372,20 @@ func animate_quantum_channel():
 		pulse_tween.set_loops()
 
 		# First pulse: 1.5 → 2.5
-		pulse_tween.parallel().tween_method(
-			func(energy):
-				if quantum_channel:
-					var material = quantum_channel.get_surface_override_material(0)
-					if material:
-						material.emission_energy = energy,
-			1.5, 2.5, 1.5
-		).set_trans(Tween.TRANS_SINE)
+		var pulse_updater_up := func(energy):
+			if quantum_channel:
+				var material = quantum_channel.get_surface_override_material(0)
+				if material:
+					material.emission_energy_multiplier = energy
+		pulse_tween.parallel().tween_method(pulse_updater_up, 1.5, 2.5, 1.5).set_trans(Tween.TRANS_SINE)
 
 		# Second pulse: 2.5 → 1.5
-		pulse_tween.parallel().tween_method(
-			func(energy):
-				if quantum_channel:
-					var material = quantum_channel.get_surface_override_material(0)
-					if material:
-						material.emission_energy = energy,
-			2.5, 1.5, 1.5
-		).set_trans(Tween.TRANS_SINE)
+		var pulse_updater_down := func(energy):
+			if quantum_channel:
+				var material = quantum_channel.get_surface_override_material(0)
+				if material:
+					material.emission_energy_multiplier = energy
+		pulse_tween.parallel().tween_method(pulse_updater_down, 2.5, 1.5, 1.5).set_trans(Tween.TRANS_SINE)
 
 func create_photon_visualization_enhanced():
 	"""Create enhanced animated photon with trail effects."""
@@ -403,7 +399,7 @@ func create_photon_visualization_enhanced():
 	material.albedo_color = Color.YELLOW
 	material.emission_enabled = true
 	material.emission = Color.YELLOW
-	material.emission_energy = 3.5
+	material.emission_energy_multiplier = 3.5
 	material.rim_enabled = true
 	material.rim = 1.2
 	photon_node.set_surface_override_material(0, material)
@@ -430,7 +426,7 @@ func create_photon_trail():
 		trail_material.albedo_color = Color(1, 1, 0, alpha)
 		trail_material.emission_enabled = true
 		trail_material.emission = Color(1, 1, 0, alpha * 0.7)
-		trail_material.emission_energy = 2.8 - (i * 0.35)
+		trail_material.emission_energy_multiplier = 2.8 - (i * 0.35)
 		trail_material.flags_transparent = true
 		trail_material.rim_enabled = true
 		trail_material.rim = 0.9 - (i * 0.12)
@@ -460,7 +456,7 @@ func create_sifting_indicators():
 		material.albedo_color = Color.GRAY
 		material.emission_enabled = true
 		material.emission = Color.GRAY
-		material.emission_energy = 0.5
+		material.emission_energy_multiplier = 0.5
 		material.rim_enabled = true
 		material.rim = 0.8
 		indicator.set_surface_override_material(0, material)
@@ -511,12 +507,12 @@ func show_sifting_results(matches: Array):
 					# Green for match
 					material.albedo_color = Color.GREEN
 					material.emission = Color.GREEN
-					material.emission_energy = 2.0
+					material.emission_energy_multiplier = 2.0
 				else:
 					# Red for mismatch
 					material.albedo_color = Color.RED
 					material.emission = Color.RED
-					material.emission_energy = 2.0
+					material.emission_energy_multiplier = 2.0
 
 			# Animate indicator appearing
 			var appear_tween = create_tween()
@@ -541,6 +537,8 @@ func show_key_bits(bits: Array):
 			label.scale = Vector3(0.1, 0.1, 0.1)
 			bit_tween.tween_property(label, "scale", Vector3(1.5, 1.5, 1.5), 0.3).set_delay(i * 0.3)
 			bit_tween.tween_property(label, "scale", Vector3(1, 1, 1), 0.2)
+
+func create_alice_bob_entangled_enhanced():
 	"""Create enhanced entanglement visualization for E91."""
 	# Alice's side with entangled qubit
 	alice_avatar = MeshInstance3D.new()
@@ -555,7 +553,7 @@ func show_key_bits(bits: Array):
 	alice_material.albedo_color = Color.MAGENTA
 	alice_material.emission_enabled = true
 	alice_material.emission = Color.MAGENTA
-	alice_material.emission_energy = 1.8
+	alice_material.emission_energy_multiplier = 1.8
 	alice_material.rim_enabled = true
 	alice_material.rim = 1.0
 	alice_avatar.set_surface_override_material(0, alice_material)
@@ -582,7 +580,7 @@ func show_key_bits(bits: Array):
 	bob_material.albedo_color = Color.MAGENTA
 	bob_material.emission_enabled = true
 	bob_material.emission = Color.MAGENTA
-	bob_material.emission_energy = 1.8
+	bob_material.emission_energy_multiplier = 1.8
 	bob_material.rim_enabled = true
 	bob_material.rim = 1.0
 	bob_avatar.set_surface_override_material(0, bob_material)
@@ -614,7 +612,7 @@ func create_entanglement_beam_enhanced():
 	beam_material.albedo_color = Color(1, 0, 1, 0.85)
 	beam_material.emission_enabled = true
 	beam_material.emission = Color.MAGENTA
-	beam_material.emission_energy = 3.0
+	beam_material.emission_energy_multiplier = 3.0
 	beam_material.flags_transparent = true
 	beam_material.rim_enabled = true
 	beam_material.rim = 1.5
@@ -639,7 +637,7 @@ func create_chsh_violation_meter():
 	meter_material.albedo_color = Color.YELLOW
 	meter_material.emission_enabled = true
 	meter_material.emission = Color.YELLOW
-	meter_material.emission_energy = 2.0
+	meter_material.emission_energy_multiplier = 2.0
 	chsh_meter.set_surface_override_material(0, meter_material)
 	add_child(chsh_meter)
 
@@ -670,7 +668,7 @@ func create_entanglement_particles():
 		particle_material.albedo_color = Color(1, 0.5, 1, 0.6)
 		particle_material.emission_enabled = true
 		particle_material.emission = Color.MAGENTA
-		particle_material.emission_energy = 2.0
+		particle_material.emission_energy_multiplier = 2.0
 		particle_material.flags_transparent = true
 		particle.set_surface_override_material(0, particle_material)
 
@@ -698,7 +696,7 @@ func create_chsh_angle_arrows():
 	alice_arrow_material.albedo_color = Color.MAGENTA
 	alice_arrow_material.emission_enabled = true
 	alice_arrow_material.emission = Color.MAGENTA
-	alice_arrow_material.emission_energy = 2.0
+	alice_arrow_material.emission_energy_multiplier = 2.0
 	alice_arrow_material.rim_enabled = true
 	alice_arrow_material.rim = 1.0
 	alice_arrow.set_surface_override_material(0, alice_arrow_material)
@@ -726,7 +724,7 @@ func create_chsh_angle_arrows():
 	bob_arrow_material.albedo_color = Color.MAGENTA
 	bob_arrow_material.emission_enabled = true
 	bob_arrow_material.emission = Color.MAGENTA
-	bob_arrow_material.emission_energy = 2.0
+	bob_arrow_material.emission_energy_multiplier = 2.0
 	bob_arrow_material.rim_enabled = true
 	bob_arrow_material.rim = 1.0
 	bob_arrow.set_surface_override_material(0, bob_arrow_material)
@@ -770,22 +768,18 @@ func show_eve_cutting_beam():
 		cut_tween.parallel().tween_property(eve_drone, "position", Vector3(0, 0, 0), 0.8)
 
 		# Beam flickers and weakens
-		cut_tween.parallel().tween_method(
-			func(energy):
-				var material = entanglement_beam.get_surface_override_material(0)
-				if material:
-					material.emission_energy = energy,
-			3.0, 0.5, 0.8
-		)
+		var beam_cut_updater := func(energy):
+			var material = entanglement_beam.get_surface_override_material(0)
+			if material:
+				material.emission_energy_multiplier = energy
+		cut_tween.parallel().tween_method(beam_cut_updater, 3.0, 0.5, 0.8)
 
 		# Add red flash
-		cut_tween.parallel().tween_method(
-			func(alpha):
-				var material = eve_drone.get_surface_override_material(0)
-				if material:
-					material.emission_energy = alpha * 4.0,
-			1.0, 8.0, 0.4
-		)
+		var eve_flash_updater := func(alpha):
+			var material = eve_drone.get_surface_override_material(0)
+			if material:
+				material.emission_energy_multiplier = alpha * 4.0
+		cut_tween.parallel().tween_method(eve_flash_updater, 1.0, 8.0, 0.4)
 
 		# Beam breaks apart
 		cut_tween.tween_callback(
@@ -793,6 +787,8 @@ func show_eve_cutting_beam():
 				if entanglement_beam:
 					entanglement_beam.scale.y = 0.1
 		)
+
+func create_alice_bob_b92_enhanced():
 	"""Create enhanced Alice/Bob setup for B92 with state indicators."""
 	# Alice with non-orthogonal state preparation
 	alice_avatar = MeshInstance3D.new()
@@ -807,7 +803,7 @@ func show_eve_cutting_beam():
 	alice_material.albedo_color = Color.ORANGE
 	alice_material.emission_enabled = true
 	alice_material.emission = Color.ORANGE
-	alice_material.emission_energy = 1.5
+	alice_material.emission_energy_multiplier = 1.5
 	alice_material.rim_enabled = true
 	alice_material.rim = 0.8
 	alice_avatar.set_surface_override_material(0, alice_material)
@@ -834,7 +830,7 @@ func show_eve_cutting_beam():
 	bob_material.albedo_color = Color.ORANGE
 	bob_material.emission_enabled = true
 	bob_material.emission = Color.ORANGE
-	bob_material.emission_energy = 1.5
+	bob_material.emission_energy_multiplier = 1.5
 	bob_material.rim_enabled = true
 	bob_material.rim = 0.8
 	bob_avatar.set_surface_override_material(0, bob_material)
@@ -862,7 +858,7 @@ func create_dual_angle_indicators():
 	angle_material_1.albedo_color = Color.YELLOW
 	angle_material_1.emission_enabled = true
 	angle_material_1.emission = Color.YELLOW
-	angle_material_1.emission_energy = 2.5
+	angle_material_1.emission_energy_multiplier = 2.5
 	angle_material_1.rim_enabled = true
 	angle_material_1.rim = 1.2
 	angle_indicator.set_surface_override_material(0, angle_material_1)
@@ -880,7 +876,7 @@ func create_dual_angle_indicators():
 	angle_material_2.albedo_color = Color.ORANGE
 	angle_material_2.emission_enabled = true
 	angle_material_2.emission = Color.ORANGE
-	angle_material_2.emission_energy = 2.5
+	angle_material_2.emission_energy_multiplier = 2.5
 	angle_material_2.rim_enabled = true
 	angle_material_2.rim = 1.2
 	angle_indicator_2.set_surface_override_material(0, angle_material_2)
@@ -914,36 +910,20 @@ func animate_angle_indicators():
 		pulse_tween.set_loops()
 
 		# Pulse first indicator
-		pulse_tween.parallel().tween_method(
-			func(energy):
-				var material = angle_indicator.get_surface_override_material(0)
-				if material:
-					material.emission_energy = energy,
-			2.5, 4.0, 1.0
-		)
-		pulse_tween.parallel().tween_method(
-			func(energy):
-				var material = angle_indicator.get_surface_override_material(0)
-				if material:
-					material.emission_energy = energy,
-			4.0, 2.5, 1.0
-		)
+		var angle_1_updater := func(energy):
+			var material = angle_indicator.get_surface_override_material(0)
+			if material:
+				material.emission_energy_multiplier = energy
+		pulse_tween.parallel().tween_method(angle_1_updater, 2.5, 4.0, 1.0)
+		pulse_tween.parallel().tween_method(angle_1_updater, 4.0, 2.5, 1.0)
 
 		# Pulse second indicator (offset)
-		pulse_tween.parallel().tween_method(
-			func(energy):
-				var material = angle_indicator_2.get_surface_override_material(0)
-				if material:
-					material.emission_energy = energy,
-			2.5, 4.0, 1.0
-		).set_delay(0.5)
-		pulse_tween.parallel().tween_method(
-			func(energy):
-				var material = angle_indicator_2.get_surface_override_material(0)
-				if material:
-					material.emission_energy = energy,
-			4.0, 2.5, 1.0
-		).set_delay(0.5)
+		var angle_2_updater := func(energy):
+			var material = angle_indicator_2.get_surface_override_material(0)
+			if material:
+				material.emission_energy_multiplier = energy
+		pulse_tween.parallel().tween_method(angle_2_updater, 2.5, 4.0, 1.0).set_delay(0.5)
+		pulse_tween.parallel().tween_method(angle_2_updater, 4.0, 2.5, 1.0).set_delay(0.5)
 
 func create_non_orthogonal_state_display():
 	"""Create visual display of non-orthogonal quantum states."""
@@ -974,7 +954,7 @@ func create_quantum_channel():
 	material.albedo_color = Color.WHITE
 	material.emission_enabled = true
 	material.emission = Color.CYAN
-	material.emission_energy = 0.5
+	material.emission_energy_multiplier = 0.5
 	channel.set_surface_override_material(0, material)
 
 	add_child(channel)
@@ -991,7 +971,7 @@ func create_photon_visualization():
 	material.albedo_color = Color.YELLOW
 	material.emission_enabled = true
 	material.emission = Color.YELLOW
-	material.emission_energy = 2.0
+	material.emission_energy_multiplier = 2.0
 	photon_node.set_surface_override_material(0, material)
 
 	photon_node.position = Vector3(-4, 0, 0)  # Start at Alice
@@ -1040,7 +1020,7 @@ func create_classical_comparison_bar_enhanced():
 	material.albedo_color = Color.GRAY
 	material.emission_enabled = true
 	material.emission = Color.GRAY
-	material.emission_energy = 1.2
+	material.emission_energy_multiplier = 1.2
 	material.rim_enabled = true
 	material.rim = 0.5
 	classical_comparison_bar.set_surface_override_material(0, material)
@@ -1079,7 +1059,7 @@ func create_probability_bars():
 		bar_material.albedo_color = Color.CYAN.lerp(Color.BLUE, 0.5)
 		bar_material.emission_enabled = true
 		bar_material.emission = Color.CYAN
-		bar_material.emission_energy = 1.5
+		bar_material.emission_energy_multiplier = 1.5
 		bar_material.rim_enabled = true
 		bar_material.rim = 0.8
 		bar.set_surface_override_material(0, bar_material)
@@ -1101,14 +1081,10 @@ func update_probability_bars(probabilities: Array):
 
 				# Animate height change
 				var bar_tween = create_tween()
-				bar_tween.parallel().tween_method(
-					func(h):
-						mesh.size.y = h
-						bar.position.y = h / 2.0
-					mesh.size.y,
-					target_height,
-					0.5
-				).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+				var bar_height_updater := func(h):
+					mesh.size.y = h
+					bar.position.y = h / 2.0
+				bar_tween.parallel().tween_method(bar_height_updater, mesh.size.y, target_height, 0.5).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 				# Change color based on height (blue → cyan → yellow for high probability)
 				var material = bar.get_surface_override_material(0)
@@ -1116,15 +1092,17 @@ func update_probability_bars(probabilities: Array):
 					if prob > 0.7:
 						material.albedo_color = Color.YELLOW
 						material.emission = Color.YELLOW
-						material.emission_energy = 3.0
+						material.emission_energy_multiplier = 3.0
 					elif prob > 0.4:
 						material.albedo_color = Color.CYAN
 						material.emission = Color.CYAN
-						material.emission_energy = 2.0
+						material.emission_energy_multiplier = 2.0
 					else:
 						material.albedo_color = Color.BLUE.lerp(Color.CYAN, prob)
 						material.emission = Color.CYAN
-						material.emission_energy = 1.5
+						material.emission_energy_multiplier = 1.5
+
+func create_diffusion_wave():
 	"""Create diffusion wave effect for Grover's algorithm."""
 	diffusion_wave = MeshInstance3D.new()
 	var wave_mesh = SphereMesh.new()
@@ -1138,7 +1116,7 @@ func update_probability_bars(probabilities: Array):
 	wave_material.albedo_color = Color(0, 1, 1, 0.3)
 	wave_material.emission_enabled = true
 	wave_material.emission = Color.CYAN
-	wave_material.emission_energy = 2.0
+	wave_material.emission_energy_multiplier = 2.0
 	wave_material.flags_transparent = true
 	diffusion_wave.set_surface_override_material(0, wave_material)
 	add_child(diffusion_wave)
@@ -1157,7 +1135,7 @@ func create_measurement_collapse_effect():
 	flash_material.albedo_color = Color(1, 1, 1, 0.8)
 	flash_material.emission_enabled = true
 	flash_material.emission = Color.WHITE
-	flash_material.emission_energy = 5.0
+	flash_material.emission_energy_multiplier = 5.0
 	flash_material.flags_transparent = true
 	measurement_flash.set_surface_override_material(0, flash_material)
 	add_child(measurement_flash)
@@ -1178,7 +1156,7 @@ func create_period_landscape_enhanced():
 			landscape_material.albedo_color = Color.BLUE.lerp(Color.PURPLE, i / 8.0)
 			landscape_material.emission_enabled = true
 			landscape_material.emission = landscape_material.albedo_color
-			landscape_material.emission_energy = 1.5
+			landscape_material.emission_energy_multiplier = 1.5
 			landscape_material.rim_enabled = true
 			landscape_material.rim = 0.6
 			database_nodes[i].set_surface_override_material(0, landscape_material)
@@ -1203,7 +1181,7 @@ func create_factor_peaks():
 		peak_material.albedo_color = Color.GOLD
 		peak_material.emission_enabled = true
 		peak_material.emission = Color.GOLD
-		peak_material.emission_energy = 4.0
+		peak_material.emission_energy_multiplier = 4.0
 		peak_material.rim_enabled = true
 		peak_material.rim = 1.2
 		peak.set_surface_override_material(0, peak_material)
@@ -1225,7 +1203,7 @@ func create_qft_portal_enhanced():
 	material.albedo_color = Color(0.5, 0, 1, 0.7)
 	material.emission_enabled = true
 	material.emission = Color.PURPLE
-	material.emission_energy = 4.0
+	material.emission_energy_multiplier = 4.0
 	material.flags_transparent = true
 	material.rim_enabled = true
 	material.rim = 1.5
@@ -1278,7 +1256,7 @@ func create_measurement_flash_effect():
 	flash_material.albedo_color = Color(1, 1, 1, 0.9)
 	flash_material.emission_enabled = true
 	flash_material.emission = Color.WHITE
-	flash_material.emission_energy = 6.0
+	flash_material.emission_energy_multiplier = 6.0
 	flash_material.flags_transparent = true
 	measurement_flash.set_surface_override_material(0, flash_material)
 	add_child(measurement_flash)
@@ -1295,45 +1273,37 @@ func show_eve_attack_enhanced():
 
 		# Create dramatic red flash effect
 		var flash_tween = create_tween()
-		flash_tween.parallel().tween_method(
-			func(intensity):
-				if eve_label:
-					eve_label.modulate = Color(1, 0, 0, intensity)
-			0.3, 1.0, 0.3
-		)
-		flash_tween.parallel().tween_method(
-			func(intensity):
-				if eve_drone:
-					var material = eve_drone.get_surface_override_material(0)
-					if material:
-						material.emission_energy = intensity * 4.0,
-			1.0, 8.0, 0.3
-		)
+		var eve_label_flash := func(intensity):
+			if eve_label:
+				eve_label.modulate = Color(1, 0, 0, intensity)
+		var eve_drone_flash := func(intensity):
+			if eve_drone:
+				var material = eve_drone.get_surface_override_material(0)
+				if material:
+					material.emission_energy_multiplier = intensity * 4.0
+		flash_tween.parallel().tween_method(eve_label_flash, 0.3, 1.0, 0.3)
+		flash_tween.parallel().tween_method(eve_drone_flash, 1.0, 8.0, 0.3)
 
 		# Animate Eve drone intercepting
 		flash_tween.parallel().tween_property(eve_drone, "position", Vector3(0, 0.5, 0), 0.5)
 
 		# State collapse effect on quantum channel
 		if quantum_channel:
-			flash_tween.parallel().tween_method(
-				func(energy):
-					var material = quantum_channel.get_surface_override_material(0)
-					if material:
-						material.emission_energy = energy,
-				1.2, 0.3, 0.5
-			)
+			var channel_collapse := func(energy):
+				var material = quantum_channel.get_surface_override_material(0)
+				if material:
+					material.emission_energy_multiplier = energy
+			flash_tween.parallel().tween_method(channel_collapse, 1.2, 0.3, 0.5)
 
 func hide_eve_attack_enhanced():
 	"""Hide Eve with smooth retreat animation."""
 	if eve_label and eve_drone:
 		var retreat_tween = create_tween()
 		retreat_tween.parallel().tween_property(eve_drone, "position", Vector3(0, -1.5, 0), 0.8)
-		retreat_tween.parallel().tween_method(
-			func(alpha):
-				if eve_label:
-					eve_label.modulate = Color(1, 0, 0, alpha)
-			1.0, 0.0, 0.8
-		)
+		var eve_retreat := func(alpha):
+			if eve_label:
+				eve_label.modulate = Color(1, 0, 0, alpha)
+		retreat_tween.parallel().tween_method(eve_retreat, 1.0, 0.0, 0.8)
 		retreat_tween.tween_callback(
 			func():
 				if eve_label:
@@ -1380,18 +1350,11 @@ func flash_oracle_enhanced(target_id: int):
 	if oracle_label:
 		oracle_label.visible = true
 		var flash_tween = create_tween()
-		flash_tween.parallel().tween_method(
-			func(intensity):
-				if oracle_label:
-					oracle_label.modulate = Color(1, 0, 0, intensity)
-			0.5, 1.0, 0.2
-		)
-		flash_tween.parallel().tween_method(
-			func(intensity):
-				if oracle_label:
-					oracle_label.modulate = Color(1, 0, 0, intensity)
-			1.0, 0.8, 0.3
-		)
+		var oracle_flash := func(intensity):
+			if oracle_label:
+				oracle_label.modulate = Color(1, 0, 0, intensity)
+		flash_tween.parallel().tween_method(oracle_flash, 0.5, 1.0, 0.2)
+		flash_tween.parallel().tween_method(oracle_flash, 1.0, 0.8, 0.3)
 
 	# Flash target database item with enhanced effects
 	if target_id < database_labels.size() and database_labels[target_id]:
@@ -1414,13 +1377,11 @@ func animate_diffusion_wave():
 
 		# Expand wave across database
 		wave_tween.parallel().tween_property(diffusion_wave, "scale", Vector3(8, 1, 4), 1.0)
-		wave_tween.parallel().tween_method(
-			func(energy):
-				var material = diffusion_wave.get_surface_override_material(0)
-				if material:
-					material.emission_energy = energy,
-			2.0, 0.5, 1.0
-		)
+		var diffusion_energy := func(energy):
+			var material = diffusion_wave.get_surface_override_material(0)
+			if material:
+				material.emission_energy_multiplier = energy
+		wave_tween.parallel().tween_method(diffusion_energy, 2.0, 0.5, 1.0)
 
 		# Hide and reset
 		wave_tween.tween_callback(
@@ -1440,21 +1401,12 @@ func show_qft_portal_enhanced():
 		portal_tween.parallel().tween_property(qft_portal, "rotation_degrees", Vector3(0, 360, 0), 1.5)
 
 		# Pulsing energy effect
-		portal_tween.parallel().tween_method(
-			func(energy):
-				var material = qft_portal.get_surface_override_material(0)
-				if material:
-					material.emission_energy = energy,
-			4.0, 6.0, 0.75
-		).set_trans(Tween.TRANS_SINE)
-
-		portal_tween.parallel().tween_method(
-			func(energy):
-				var material = qft_portal.get_surface_override_material(0)
-				if material:
-					material.emission_energy = energy,
-			6.0, 4.0, 0.75
-		).set_trans(Tween.TRANS_SINE)
+		var portal_energy := func(energy):
+			var material = qft_portal.get_surface_override_material(0)
+			if material:
+				material.emission_energy_multiplier = energy
+		portal_tween.parallel().tween_method(portal_energy, 4.0, 6.0, 0.75).set_trans(Tween.TRANS_SINE)
+		portal_tween.parallel().tween_method(portal_energy, 6.0, 4.0, 0.75).set_trans(Tween.TRANS_SINE)
 
 func show_factor_discovery():
 	"""Show factor peaks appearing after successful QFT."""
@@ -1499,13 +1451,11 @@ func animate_bell_pair_creation():
 		entanglement_beam.visible = true
 
 		creation_tween.parallel().tween_property(entanglement_beam, "scale", Vector3(1, 28, 1), 1.0)
-		creation_tween.parallel().tween_method(
-			func(energy):
-				var material = entanglement_beam.get_surface_override_material(0)
-				if material:
-					material.emission_energy = energy,
-			0.5, 2.5, 1.0
-		)
+		var bell_energy := func(energy):
+			var material = entanglement_beam.get_surface_override_material(0)
+			if material:
+				material.emission_energy_multiplier = energy
+		creation_tween.parallel().tween_method(bell_energy, 0.5, 2.5, 1.0)
 
 func animate_measurement_collapse():
 	"""Animate quantum measurement collapse effect."""
@@ -1516,13 +1466,11 @@ func animate_measurement_collapse():
 		# Sudden bright flash
 		measurement_flash.scale = Vector3(0.1, 0.1, 0.1)
 		collapse_tween.parallel().tween_property(measurement_flash, "scale", Vector3(3, 3, 3), 0.3)
-		collapse_tween.parallel().tween_method(
-			func(energy):
-				var material = measurement_flash.get_surface_override_material(0)
-				if material:
-					material.emission_energy = energy,
-			6.0, 0.0, 0.8
-		)
+		var collapse_energy := func(energy):
+			var material = measurement_flash.get_surface_override_material(0)
+			if material:
+				material.emission_energy_multiplier = energy
+		collapse_tween.parallel().tween_method(collapse_energy, 6.0, 0.0, 0.8)
 
 		# Fade out
 		collapse_tween.tween_callback(
@@ -1546,7 +1494,7 @@ func create_portal_particles():
 		particle_material.albedo_color = Color.PURPLE
 		particle_material.emission_enabled = true
 		particle_material.emission = Color.PURPLE
-		particle_material.emission_energy = 3.5
+		particle_material.emission_energy_multiplier = 3.5
 		particle_material.flags_transparent = true
 		particle_material.rim_enabled = true
 		particle_material.rim = 1.2
@@ -1580,17 +1528,15 @@ func animate_portal_fly_through():
 			var radius_start = 2.5
 			var radius_end = 0.5
 
-			spiral_tween.tween_method(
-				func(t):
-					var current_angle = angle + (t * TAU * 2)  # 2 full rotations
-					var current_radius = lerp(radius_start, radius_end, t)
-					particle.position = Vector3(
-						cos(current_angle) * current_radius,
-						4,
-						sin(current_angle) * current_radius
-					)
-				0.0, 1.0, 3.0
-			).set_delay(i * 0.1)
+			var portal_spiral := func(t):
+				var current_angle = angle + (t * TAU * 2)  # 2 full rotations
+				var current_radius = lerp(radius_start, radius_end, t)
+				particle.position = Vector3(
+					cos(current_angle) * current_radius,
+					4,
+					sin(current_angle) * current_radius
+				)
+			spiral_tween.tween_method(portal_spiral, 0.0, 1.0, 3.0).set_delay(i * 0.1)
 
 func collapse_landscape_to_peaks():
 	"""Collapse period landscape into sharp factor peaks."""
@@ -1598,16 +1544,12 @@ func collapse_landscape_to_peaks():
 	for node in database_nodes:
 		if node:
 			var flatten_tween = create_tween()
-			flatten_tween.tween_method(
-				func(h):
-					var mesh = node.mesh as BoxMesh
-					if mesh:
-						mesh.size.y = h
-						node.position.y = h / 2.0
-				node.mesh.size.y,
-				0.2,
-				1.0
-			)
+			var flatten_height := func(h):
+				var mesh = node.mesh as BoxMesh
+				if mesh:
+					mesh.size.y = h
+					node.position.y = h / 2.0
+			flatten_tween.tween_method(flatten_height, node.mesh.size.y, 0.2, 1.0)
 
 	# Show factor peaks emerging
 	call_deferred("show_factor_discovery")
@@ -1624,7 +1566,7 @@ func create_central_step_display():
 	bg_material.albedo_color = Color(0, 0, 0, 0.9)
 	bg_material.emission_enabled = true
 	bg_material.emission = Color(0.1, 0.1, 0.1)
-	bg_material.emission_energy = 0.5
+	bg_material.emission_energy_multiplier = 0.5
 	bg_material.flags_transparent = true
 	step_display_background.set_surface_override_material(0, bg_material)
 	step_display_background.visible = false
@@ -1750,7 +1692,7 @@ func setup_qubit_materials():
 		material.roughness = 0.1
 		material.emission_enabled = true
 		material.emission = Color.CYAN
-		material.emission_energy = GLOW_INTENSITY
+		material.emission_energy_multiplier = GLOW_INTENSITY
 
 		# Enhanced visual effects
 		material.rim_enabled = true
@@ -1773,7 +1715,7 @@ func setup_database_materials():
 		material.roughness = 0.2
 		material.emission_enabled = true
 		material.emission = Color.BLUE
-		material.emission_energy = 1.5
+		material.emission_energy_multiplier = 1.5
 
 		# Enhanced glow effect
 		material.rim_enabled = true
@@ -1841,28 +1783,16 @@ func start_quantum_pulse_animation():
 
 		# Get base energy value (default to 1.0 if not set)
 		var base_energy = 1.0
-		if material.has_method("get") and material.get("emission_energy") != null:
-			base_energy = material.emission_energy
+		if material.has_method("get") and material.get("emission_energy_multiplier") != null:
+			base_energy = material.emission_energy_multiplier
 		else:
-			material.emission_energy = base_energy
+			material.emission_energy_multiplier = base_energy
 
-		animation_tween.parallel().tween_method(
-			func(energy):
-				if material and is_instance_valid(material):
-					material.emission_energy = energy,
-			base_energy * 0.7,
-			base_energy * 1.3,
-			PULSE_SPEED
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-
-		animation_tween.parallel().tween_method(
-			func(energy):
-				if material and is_instance_valid(material):
-					material.emission_energy = energy,
-			base_energy * 1.3,
-			base_energy * 0.7,
-			PULSE_SPEED
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		var pulse_material := func(energy):
+			if material and is_instance_valid(material):
+				material.emission_energy_multiplier = energy
+		animation_tween.parallel().tween_method(pulse_material, base_energy * 0.7, base_energy * 1.3, PULSE_SPEED).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		animation_tween.parallel().tween_method(pulse_material, base_energy * 1.3, base_energy * 0.7, PULSE_SPEED).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func update_database_height(box_node: MeshInstance3D, probability: float, is_target: bool):
 	"""Enhanced database height with smooth animations and probability display."""
@@ -1872,15 +1802,11 @@ func update_database_height(box_node: MeshInstance3D, probability: float, is_tar
 
 	# Smooth animation
 	if animation_tween:
-		animation_tween.parallel().tween_method(
-			func(h):
-				var mesh = box_node.mesh as BoxMesh
-				mesh.size.y = h
-				box_node.position.y = h / 2.0
-			box_node.mesh.size.y,
-			height,
-			0.4
-		).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+		var resize_bar := func(h):
+			var mesh = box_node.mesh as BoxMesh
+			mesh.size.y = h
+			box_node.position.y = h / 2.0
+		animation_tween.parallel().tween_method(resize_bar, box_node.mesh.size.y, height, 0.4).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
 
 	# Update label with probability percentage
 	var item_id = -1
@@ -1918,7 +1844,7 @@ func update_database_color(item_id: int, probability: float, is_target: bool):
 
 	material.albedo_color = base_color
 	material.emission = base_color
-	material.emission_energy = glow_intensity
+	material.emission_energy_multiplier = glow_intensity
 
 # Helper methods
 func update_qubit_color(qubit_id: int, phase: float):
@@ -1951,7 +1877,7 @@ func update_qubit_glow(qubit_id: int, probability: float):
 
 	var material = qubit_materials[qubit_id]
 	var glow_strength = lerp(2.0, GLOW_INTENSITY, probability)
-	material.emission_energy = glow_strength
+	material.emission_energy_multiplier = glow_strength
 
 func position_qubits_circular(radius: float = 5.0):
 	for i in range(qubit_nodes.size()):
@@ -1970,3 +1896,4 @@ func position_qubits_circular(radius: float = 5.0):
 func _exit_tree():
 	if animation_tween:
 		animation_tween.kill()
+

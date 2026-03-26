@@ -88,7 +88,7 @@ func create_educational_display():
 
 	# Create rich text label with enhanced styling
 	educational_text_label = RichTextLabel.new()
-	educational_text_label.autowrap_mode = 3  # AUTOWRAP_WORD_SMART
+	educational_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	educational_text_label.size = Vector2(960, 180)  # Larger text area
 	educational_text_label.position = Vector2(20, 20)  # Padding from panel edges
 	# Enable BBCode for rich formatting
@@ -237,24 +237,15 @@ func show_educational_text(text: String):
 			panel_theme.border_color = border_color
 			# Add subtle glow effect by increasing border width temporarily
 			var glow_tween = create_tween()
-			glow_tween.tween_method(
-				func(width):
-					if panel_theme:
-						panel_theme.border_width_left = width
-						panel_theme.border_width_right = width
-						panel_theme.border_width_top = width
-						panel_theme.border_width_bottom = width,
-				4, 8, 0.3
-			)
-			glow_tween.tween_method(
-				func(width):
-					if panel_theme:
-						panel_theme.border_width_left = width
-						panel_theme.border_width_right = width
-						panel_theme.border_width_top = width
-						panel_theme.border_width_bottom = width,
-				8, 4, 0.3
-			)
+			glow_tween.parallel().tween_property(panel_theme, "border_width_left", 8, 0.3)
+			glow_tween.parallel().tween_property(panel_theme, "border_width_right", 8, 0.3)
+			glow_tween.parallel().tween_property(panel_theme, "border_width_top", 8, 0.3)
+			glow_tween.parallel().tween_property(panel_theme, "border_width_bottom", 8, 0.3)
+			glow_tween.tween_interval(0.01)
+			glow_tween.parallel().tween_property(panel_theme, "border_width_left", 4, 0.3)
+			glow_tween.parallel().tween_property(panel_theme, "border_width_right", 4, 0.3)
+			glow_tween.parallel().tween_property(panel_theme, "border_width_top", 4, 0.3)
+			glow_tween.parallel().tween_property(panel_theme, "border_width_bottom", 4, 0.3)
 
 		# Enhanced auto-hide with extended time for readability
 		var hide_timer = get_tree().create_timer(8.0)  # Longer display time for complex explanations
@@ -299,7 +290,7 @@ func update_mission_name(mission: String):
 func update_backend_status(status: String):
 	backend_status_label.text = "Backend: %s" % status
 
-	if status in ["Online", "Connected"]:
+	if status in ["Online", "Connected"] or status.begins_with("Fallback"):
 		backend_status_label.modulate = COLOR_SUCCESS
 	elif status.begins_with("Connecting") or status.begins_with("Retrying"):
 		backend_status_label.modulate = COLOR_WARNING
@@ -413,8 +404,33 @@ func update_mission_data(data: Dictionary):
 
 	if current_mission == "bb84":
 		update_bb84_data(data)
+	elif current_mission == "e91":
+		step_label.text = "Bell Pairs: %d" % int(data.get("step", 0))
+		error_rate_label.text = "CHSH: %.2f" % float(data.get("chsh_value", 0.0))
+		key_bits_label.text = "Entangled Key: %d bits" % int(data.get("key_length", 0))
+		eve_status_label.text = "Eve: %s" % ("ACTIVE" if data.get("eve_active", false) else "Inactive")
+		eve_status_label.modulate = COLOR_WARNING if data.get("eve_active", false) else COLOR_INFO
+	elif current_mission == "b92":
+		step_label.text = "Photons: %d" % int(data.get("photon_count", 0))
+		error_rate_label.text = "Detection: %.1f%%" % (float(data.get("detection_rate", 0.0)) * 100.0)
+		key_bits_label.text = "Key Bits: %d" % int(data.get("key_length", 0))
+		eve_status_label.text = "Eve: %s" % ("ACTIVE" if data.get("eve_active", false) else "Inactive")
+		eve_status_label.modulate = COLOR_WARNING if data.get("eve_active", false) else COLOR_NEUTRAL
 	elif current_mission == "grover":
 		update_grover_data(data)
+	elif current_mission == "shor":
+		step_label.text = "QFT Iteration: %d" % int(data.get("iteration", 0))
+		var period = data.get("period", null)
+		error_rate_label.text = "Period: %s" % (str(period) if period != null else "?")
+		var factors = data.get("factors", [])
+		if factors is Array and factors.size() >= 2:
+			key_bits_label.text = "Factors: %d × %d" % [int(factors[0]), int(factors[1])]
+			eve_status_label.text = "RSA: Broken"
+			eve_status_label.modulate = COLOR_SUCCESS
+		else:
+			key_bits_label.text = "Factors: ? × ?"
+			eve_status_label.text = "RSA: Secure"
+			eve_status_label.modulate = COLOR_INFO
 
 func update_bb84_data(data: Dictionary):
 	"""Handle BB84-specific data updates."""
@@ -440,3 +456,4 @@ func get_current_status() -> Dictionary:
 		"eve_status": eve_status_label.text,
 		"backend_status": backend_status_label.text
 	}
+
